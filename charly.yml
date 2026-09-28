@@ -1,7 +1,5 @@
-version: 2026.249.2125
 charly-versa:
     candy:
-        version: 2026.218.1200
         description: |-
             Metadata concept candy owning the charly-versa skills whose names have no namesake candy (versa geo/marimo images). Owns its family's `skill:` kind entities (sibling nodes in this file) — the
             the plugins→candies migration; candy/plugin-marketplace regenerates the marketplace
