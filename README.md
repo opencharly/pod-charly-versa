@@ -48,7 +48,10 @@ the `skill:` entity here and regenerate; never the projected file.
 
 - Owning procedure: `/charly-internals:skills` — when and how to update a skill
   entity and regenerate the corpus.
-- The versa image itself is documented by `/charly-versa:versa`, owned by the
-  `distro-cachyos` repo's `cachyos-app-skills` candy — not by this repo.
+- The versa image itself is documented by `/charly-versa:versa` — the family
+  skill resolved in the marketplace corpus at `versa/skills/versa/SKILL.md`
+  (the `/charly-versa:` prefix is the marketplace family `versa`, i.e. the
+  `charly-versa` plugin; the `versa` skill in it is owned by the
+  `distro-cachyos` repo's `cachyos-app-skills` candy, not by this repo).
 - [`opencharly/charly`](https://github.com/opencharly/charly) — the charly CLI and image builder
 - [`opencharly/opencharly`](https://github.com/opencharly/opencharly) — the umbrella
