@@ -7,16 +7,16 @@ concept candy**: it ships no install content of its own and exists to own the
 
 ## What it provides
 
-| Entity | Kind | Projected as |
-|---|---|---|
-| `charly-versa` | `candy` | the concept candy (validate-satisfying no-op plan) |
-| `airflow-layer-skill` | `skill` | `/charly-versa:airflow-layer` |
-| `debug-tools-layer-skill` | `skill` | `/charly-versa:debug-tools-layer` |
-| `maputnik-layer-skill` | `skill` | `/charly-versa:maputnik-layer` |
-| `marimo-layer-skill` | `skill` | `/charly-versa:marimo-layer` |
-| `marimo-mcp-skill` | `skill` | `/charly-versa:marimo-mcp` |
-| `osm-tools-layer-skill` | `skill` | `/charly-versa:osm-tools-layer` |
-| `sway-browser-ecovoyage-skill` | `skill` | `/charly-versa:sway-browser-ecovoyage` |
+| `charly.yml` node | Kind | `name:` | Projected as |
+|---|---|---|---|
+| `charly-versa` | `candy` | — | the concept candy (validate-satisfying no-op plan) |
+| `airflow-layer-skill` | `skill` | `airflow-layer` | `/charly-versa:airflow-layer` |
+| `debug-tools-layer-skill` | `skill` | `debug-tools-layer` | `/charly-versa:debug-tools-layer` |
+| `maputnik-layer-skill` | `skill` | `maputnik-layer` | `/charly-versa:maputnik-layer` |
+| `marimo-layer-skill` | `skill` | `marimo-layer` | `/charly-versa:marimo-layer` |
+| `marimo-mcp-skill` | `skill` | `marimo-mcp` | `/charly-versa:marimo-mcp` |
+| `osm-tools-layer-skill` | `skill` | `osm-tools-layer` | `/charly-versa:osm-tools-layer` |
+| `sway-browser-ecovoyage-skill` | `skill` | `sway-browser-ecovoyage` | `/charly-versa:sway-browser-ecovoyage` |
 
 The seven skills document the versa image's component layers: the marimo reactive
 notebook + MCP server, the Apache Airflow 3.x layer, the OSM tooling + martin
@@ -48,6 +48,7 @@ the `skill:` entity here and regenerate; never the projected file.
 
 - Owning procedure: `/charly-internals:skills` — when and how to update a skill
   entity and regenerate the corpus.
-- The versa image itself is documented by `/charly-versa:versa`.
+- The versa image itself is documented by `/charly-versa:versa`, owned by the
+  `distro-cachyos` repo's `cachyos-app-skills` candy — not by this repo.
 - [`opencharly/charly`](https://github.com/opencharly/charly) — the charly CLI and image builder
 - [`opencharly/opencharly`](https://github.com/opencharly/opencharly) — the umbrella

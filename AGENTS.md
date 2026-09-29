@@ -9,7 +9,10 @@ no install content — the entities are the product.
 Canonical files:
 
 - `charly.yml` — the `charly-versa` candy entity plus the seven `skill:` entities
-  (`airflow-layer`, `debug-tools-layer`, `maputnik-layer`, `marimo-layer`,
+  (nodes `airflow-layer-skill`, `debug-tools-layer-skill`, `maputnik-layer-skill`,
+  `marimo-layer-skill`, `marimo-mcp-skill`, `osm-tools-layer-skill`,
+  `sway-browser-ecovoyage-skill`; their `name:` fields are the bare
+  `airflow-layer`, `debug-tools-layer`, `maputnik-layer`, `marimo-layer`,
   `marimo-mcp`, `osm-tools-layer`, `sway-browser-ecovoyage`).
 - `.github/workflows/tag-on-merge.yml` — CalVer tag + `CHANGELOG/` on merge.
 - `CHANGELOG/` — per-CalVer history.
