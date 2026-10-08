@@ -9,11 +9,42 @@ charly-versa:
               command: "true"
               context:
                 - build
-            - check: the versa concept candy's skill entities are present and generated into the marketplace's versa/skills
+            - check: the versa concept candy's skill entities are present — each of the seven `*-skill:` entities this candy declares exists in charly.yml, and they are the seven the marketplace generates into `versa/skills` (the family's routed/unrouted split is asserted separately and by the dispatcher ratchet)
               id: charly-versa-present
               context:
                 - build
-              command: "true"
+              command: |
+                f=charly.yml
+                [ -f "$f" ] || f="$(git rev-parse --show-toplevel 2>/dev/null)/charly.yml"
+                bad=0
+                for e in airflow-layer-skill debug-tools-layer-skill maputnik-layer-skill marimo-layer-skill marimo-mcp-skill osm-tools-layer-skill sway-browser-ecovoyage-skill; do
+                  grep -q "^${e}:$" "$f" || { echo "MISSING skill entity: $e"; bad=1; }
+                done
+                exit $bad
+            - check: every `*-skill:` entity in this repo carries a `triggers:` key AND at least one trigger item under it — the marketplace dispatcher's generated rows come ONLY from `triggers:`-bearing skills, so a skill without one is invisible to R0 and reachable only from the hand-curated table
+              id: skill-triggers-present
+              context:
+                - build
+              command: |
+                f=charly.yml
+                [ -f "$f" ] || f="$(git rev-parse --show-toplevel 2>/dev/null)/charly.yml"
+                awk '
+                /^[a-z0-9-]+-skill:[[:space:]]*$/ {
+                  if (name != "" && !(has_trig[name] && has_item[name])) {
+                    print (has_trig[name] ? "EMPTY triggers: " : "MISSING triggers: ") name; bad = 1
+                  }
+                  name = $1; sub(/:$/, "", name); has_trig[name] = 0; has_item[name] = 0; in_trig = 0; next
+                }
+                name != "" && in_trig && /^[[:space:]]+-[[:space:]]/ { has_item[name] = 1; next }
+                name != "" && /^[[:space:]]+triggers:[[:space:]]*$/ { has_trig[name] = 1; in_trig = 1; next }
+                { if (in_trig) in_trig = 0 }
+                END {
+                  if (name != "" && !(has_trig[name] && has_item[name])) {
+                    print (has_trig[name] ? "EMPTY triggers: " : "MISSING triggers: ") name; bad = 1
+                  }
+                  exit bad
+                }
+                ' "$f"
 
 airflow-layer-skill:
     skill:
@@ -23,6 +54,8 @@ airflow-layer-skill:
         description: |-
             Apache Airflow 3.x with LocalExecutor + SQLite (single-node, dev-friendly), 4 supervisord services (init, scheduler, dag-processor, webserver). Layer is service-only — its Python deps live in /charly-versa:marimo-layer's pixi env. No MCP wrapper (no upstream v2 release exists; consumers drive Airflow via direct REST /api/v2 calls).
             Use when working with the airflow layer, Airflow 3.x compatibility findings, the SimpleAuthManager auth-fix pattern, the dag-processor split-from-scheduler architecture change, or the JWT-issuance + REST API trigger flow used by self-authoring notebooks.
+        triggers:
+            - "the airflow layer / Apache Airflow 3.x (LocalExecutor + SQLite; supervisord init/scheduler/dag-processor/webserver services) — Airflow DAG authoring, the Airflow REST API, the SimpleAuthManager pattern, or the dag-processor split-from-scheduler architecture"
         content: |-
             # airflow — Apache Airflow 3.x layer
             
@@ -192,6 +225,8 @@ debug-tools-layer-skill:
         description: |-
             Debug toolkit for inspecting deployed services from inside the container — network probes (ip/ss/lsof/ping/dig/nc/socat/tcpdump/traceroute/mtr/wget), process inspection (ps/top/htop/pgrep/free/vmstat/strace/ltrace), file inspection (file/tree/xxd/vim/nano), system stats (iotop/iftop/sysstat), session helpers (tmux/rsync/yq). Distro-agnostic.
             Use when working with the debug-tools layer, the per-distro package-name divergence (nmap-ncat vs ncat vs gnu-netcat), or the 16 build-scope check probes that lock in headline binary presence.
+        triggers:
+            - "the debug-tools layer / in-container service debugging — network probes (ip/ss/lsof/ping/dig/nc/socat/tcpdump/traceroute/mtr/wget), process inspection (ps/top/htop/pgrep/strace/free/vmstat), file inspection, or the per-distro package-name divergence (nmap-ncat vs ncat vs gnu-netcat)"
         content: |-
             # debug-tools — distro-agnostic debug toolkit
             
@@ -318,6 +353,8 @@ maputnik-layer-skill:
         description: |-
             Maputnik — visual editor for MapLibre GL vector-tile styles. Pure-JS SPA built from upstream source via npm at image build time, served as static dist by python -m http.server. Pairs with osm-tools's martin tile server.
             Use when working with the maputnik layer, the Vite --base=/ build override (critical fix; default --base=/maputnik/ produces 404 asset paths), or the asset-base lock-in check test.
+        triggers:
+            - "the maputnik layer / the Maputnik visual editor for MapLibre GL vector-tile styles (npm-built SPA served as a static dist by python -m http.server; the Vite --base=/ build override; the asset-base lock-in check)"
         content: |-
             # maputnik — visual MapLibre style editor
             
@@ -449,6 +486,8 @@ marimo-layer-skill:
         description: |-
             marimo reactive notebook server (also runs as MCP server via --mcp), GPU-accelerated OSM/GTFS analytics deps (cudf-polars-cu13, polars, geopandas, quackosm, gtfs-parquet), Apache Airflow Python deps (the airflow layer ships no pixi env), and the marimo-team/learn curriculum + marimo-team/skills bundle for you.
             Use when working with the marimo layer, its pixi environment, the supervisord service spec, or the cell-display + mo.iframe rendering patterns.
+        triggers:
+            - "the marimo layer / the reactive notebook server + MCP runtime, its pixi environment (cudf-polars-cu13, polars, geopandas, quackosm, gtfs-parquet), the supervisord service spec, or the cell-display + mo.iframe rendering patterns"
         content: |-
             # marimo — reactive notebook + MCP server
             
@@ -605,6 +644,8 @@ marimo-mcp-skill:
         description: |-
             marimo's built-in MCP server (read-only inspection tools — get_active_notebooks, get_cell_outputs, get_notebook_errors, etc.) at port 2718 path /mcp/server.
             Use when working with the marimo MCP tool catalog, programmatic notebook diagnostics, or the cells-don't-execute-via-MCP gap (marimo MCP is read-only; cells run via WebSocket from a browser OR `marimo export ipynb --include-outputs` for headless execution).
+        triggers:
+            - "the marimo MCP server on port 2718 path /mcp/server (get_active_notebooks, get_cell_outputs, get_notebook_errors) — the marimo MCP tool catalog, or the cells-don't-execute-via-MCP gap (marimo MCP is read-only)"
         content: |-
             # marimo-mcp — marimo's built-in MCP server (read-only inspection)
             
@@ -724,6 +765,8 @@ osm-tools-layer-skill:
         description: |-
             OpenStreetMap data pipeline tooling: tippecanoe (GeoJSON → MBTiles/PMTiles, built from source), gdal/ogr2ogr, jq, martin (Rust musl static binary on port 3000), pmtiles CLI. Martin reads tiles from /workspace/tiles/pmtiles/.
             Use when working with the osm-tools layer, tippecanoe build steps, the martin tile server config, the martin "Underlying data source was modified" cache issue + DAG-completion supervisord-restart pattern, or the vector-tiles-only output that requires MapLibre GL JS clients (NOT folium TileLayer).
+        triggers:
+            - "the OSM data pipeline tooling (tippecanoe, gdal/ogr2ogr, martin on port 3000, the pmtiles CLI), martin reading tiles from /workspace/tiles/pmtiles/, the martin data-source cache restart pattern, or vector-tiles-only MapLibre output"
         content: |-
             # osm-tools — OSM tooling + martin vector-tile server
             
@@ -905,6 +948,8 @@ sway-browser-ecovoyage-skill:
         owner: charly-versa
         description: |-
             Sway-browser-vnc instance wired to versa/ecovoyage tailnet URLs — chrome-devtools-mcp + CDP for debugging the generated MapLibre + folium maps.
+        triggers:
+            - "the versa/ecovoyage tailnet sway-browser-vnc instance — chrome-devtools-mcp + CDP debugging of the generated MapLibre and folium maps"
         content: |-
             # sway-browser-ecovoyage — chrome-devtools-mcp debug bed for versa/ecovoyage maps
             
