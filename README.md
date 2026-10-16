@@ -3,7 +3,9 @@
 The `charly-versa` candy of the OpenCharly candy library, as a standalone repo
 (the candy de-submodule cutover, kind-prefixed naming). It is a **metadata
 concept candy**: it ships no install content of its own and exists to own the
-`skill:` entities for the versa family whose names have no namesake candy.
+`skill:` entities for the versa family whose names have no namesake candy. Each
+skill's body lives beside it, in `.agents/skills/<name>/SKILL.md`; its
+`charly.yml` node carries the routing metadata that names it.
 
 ## What it provides
 
@@ -35,11 +37,15 @@ charly marketplace generate --root <marketplace-checkout> --out <marketplace-che
 ```
 
 The generated `versa/skills/*/SKILL.md` files carry a DO-NOT-EDIT banner — edit
-the `skill:` entity here and regenerate; never the projected file.
+the skill's file in `.agents/skills/<name>/` (or its node's routing metadata in
+`charly.yml`) and regenerate; never the projected file.
 
 ## Layout
 
-- `charly.yml` — the `charly-versa` candy entity plus the seven `skill:` entities.
+- `charly.yml` — the `charly-versa` candy entity plus the seven `skill:` routing
+  nodes (`name`/`family`/`owner`/`triggers`).
+- `.agents/skills/<name>/SKILL.md` — the seven skill bodies, one directory per
+  node's `name:`.
 - `.github/workflows/tag-on-merge.yml` — CalVer tag + `CHANGELOG/` on merge.
 - `CHANGELOG/` — per-CalVer history.
 - `README.md` — this user overview.
